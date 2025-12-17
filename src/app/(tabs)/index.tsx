@@ -1,43 +1,63 @@
 import { LegendList } from "@components/LegendList";
 import { useMediaPermissions } from "@hooks/useMediaPermissions";
-import { Image } from "expo-image";
 import * as MediaLibrary from "expo-media-library";
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator, Pressable } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function PhotosScreen() {
+export default function AlbumsScreen() {
   const { status } = useMediaPermissions();
-  const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
+  const [albums, setAlbums] = useState<MediaLibrary.Album[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (status?.granted) {
-      loadAssets();
+      loadAlbums();
     }
   }, [status]);
 
-  async function loadAssets() {
+  async function loadAlbums() {
     try {
-      const { assets: newAssets } = await MediaLibrary.getAssetsAsync({
-        first: 100, // Load first 100 for now, pagination can be added later
-        mediaType: "photo",
-        sortBy: ["creationTime"],
+      const fetchedAlbums = await MediaLibrary.getAlbumsAsync({
+        includeSmartAlbums: true,
       });
-      setAssets(newAssets);
+      setAlbums(fetchedAlbums);
     } catch (e) {
-      console.error("Failed to load assets", e);
+      console.error("Failed to load albums", e);
     } finally {
       setLoading(false);
     }
   }
 
-  const renderItem = ({ item }: { item: MediaLibrary.Asset }) => (
-    <Image
-      source={{ uri: item.uri }}
-      style={{ width: "100%", height: "100%" }}
-      contentFit="cover"
-      transition={200}
-    />
+  const renderItem = ({ item }: { item: MediaLibrary.Album }) => (
+    <View className="p-2 w-full h-full">
+      <Link
+        href={{
+          pathname: "/album/[id]",
+          params: { id: item.id, title: item.title },
+        }}
+        asChild
+      >
+        <Pressable className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden active:opacity-80">
+          {/* Placeholder for album cover - in real app we'd fetch the first asset */}
+          <View className="flex-1 items-center justify-center bg-gray-200 dark:bg-gray-700">
+            <Text className="text-4xl">📁</Text>
+          </View>
+          <View className="p-2">
+            <Text
+              className="font-semibold text-black dark:text-white"
+              numberOfLines={1}
+            >
+              {item.title}
+            </Text>
+            <Text className="text-xs text-gray-500 dark:text-gray-400">
+              {item.assetCount}
+            </Text>
+          </View>
+        </Pressable>
+      </Link>
+    </View>
   );
 
   if (!status?.granted || loading) {
@@ -49,15 +69,18 @@ export default function PhotosScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white dark:bg-black">
+    <SafeAreaView
+      className="flex-1 bg-white dark:bg-black"
+      edges={["bottom", "left", "right"]}
+    >
       <LegendList
-        data={assets}
+        data={albums}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        numColumns={4}
-        estimatedItemSize={100} // Approximate size based on screen width / 4
+        numColumns={2}
+        estimatedItemSize={200}
         contentInsetAdjustmentBehavior="automatic"
       />
-    </View>
+    </SafeAreaView>
   );
 }
