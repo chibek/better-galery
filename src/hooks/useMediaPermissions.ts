@@ -21,7 +21,7 @@ export function useMediaPermissions() {
       // If permissions are granted and we are in onboarding, go to home
       router.replace("/");
     }
-  }, [status, segments]);
+  }, [status, segments, router]);
 
   const requestMediaPermission = async () => {
     const response = await requestPermission();

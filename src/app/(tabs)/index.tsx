@@ -2,9 +2,9 @@ import { LegendList } from "@components/LegendList";
 import { useMediaPermissions } from "@hooks/useMediaPermissions";
 import * as MediaLibrary from "expo-media-library";
 import { Link } from "expo-router";
+import { PressableScale } from "pressto";
 import { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator, StyleSheet,Text, View } from "react-native";
 
 export default function AlbumsScreen() {
   const { status } = useMediaPermissions();
@@ -39,14 +39,11 @@ export default function AlbumsScreen() {
         }}
         asChild
       >
-        <Pressable className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden active:opacity-80">
-          {/* Placeholder for album cover - in real app we'd fetch the first asset */}
-          <View className="flex-1 items-center justify-center bg-gray-200 dark:bg-gray-700">
-            <Text className="text-4xl">📁</Text>
-          </View>
+        <PressableScale style={[styles.albumCard]}>
           <View className="p-2">
             <Text
-              className="font-semibold text-black dark:text-white"
+              className="text-black dark:text-white"
+              style={{ fontFamily: "BebasNeue", fontSize: 28 }}
               numberOfLines={1}
             >
               {item.title}
@@ -55,7 +52,7 @@ export default function AlbumsScreen() {
               {item.assetCount}
             </Text>
           </View>
-        </Pressable>
+        </PressableScale>
       </Link>
     </View>
   );
@@ -69,18 +66,28 @@ export default function AlbumsScreen() {
   }
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-white dark:bg-black"
-      edges={["bottom", "left", "right"]}
-    >
+    <View className="flex-1 bg-white dark:bg-black">
       <LegendList
         data={albums}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        numColumns={2}
+        numColumns={1}
         estimatedItemSize={200}
         contentInsetAdjustmentBehavior="automatic"
       />
-    </SafeAreaView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  albumCard: {
+    flex: 1,
+    borderRadius: 12, // rounded-lg ≈ 12
+  },
+  lightBg: {
+    backgroundColor: "#fecaca", // red-200
+  },
+  darkBg: {
+    backgroundColor: "#1e40af", // blue-800
+  },
+});

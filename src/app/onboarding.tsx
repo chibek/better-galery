@@ -1,32 +1,28 @@
-import { Image } from "expo-image";
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
-} from "react-native";
 import * as MediaLibrary from "expo-media-library";
-
-const { width } = Dimensions.get("window");
+import { useRouter } from "expo-router";
+import { PressableScale } from "pressto";
+import { useState } from "react";
+import { Linking, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OnboardingScreen() {
   const [step, setStep] = useState<"welcome" | "permissions" | "showcase">(
     "welcome"
   );
-  const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
+  const [, requestPermission] = MediaLibrary.usePermissions();
   const router = useRouter();
 
   const handleGrantAccess = async () => {
     const response = await requestPermission();
     if (response.granted) {
       setStep("showcase");
-    } else {
-      // Handle denial - maybe show an alert or open settings
-      alert("We need access to your photos to make this app work!");
+      return;
     }
+    if (response.canAskAgain) {
+      await requestPermission();
+      return;
+    }
+    Linking.openSettings();
   };
 
   const handleFinish = () => {
@@ -36,7 +32,6 @@ export default function OnboardingScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-black">
       <SafeAreaView className="flex-1 justify-between p-6">
-        {/* Content Area */}
         <View className="flex-1 justify-center items-center">
           {step === "welcome" && (
             <View className="items-center gap-4">
@@ -68,7 +63,7 @@ export default function OnboardingScreen() {
           {step === "showcase" && (
             <View className="items-center gap-6">
               <Text className="text-3xl font-bold text-center text-black dark:text-white mb-4">
-                What's New
+                What&apos;s New
               </Text>
 
               <FeatureItem
@@ -136,11 +131,17 @@ function FeatureItem({
 
 function Button({ label, onPress }: { label: string; onPress: () => void }) {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      className="w-full bg-blue-500 py-4 rounded-2xl active:opacity-90"
-    >
+    <PressableScale onPress={onPress} style={styles.button}>
       <Text className="text-white text-center font-bold text-lg">{label}</Text>
-    </TouchableOpacity>
+    </PressableScale>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    width: "100%",
+    backgroundColor: "#3B82F6",
+    paddingVertical: 16,
+    borderRadius: 16,
+  },
+});

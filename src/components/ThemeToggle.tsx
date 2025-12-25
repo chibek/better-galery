@@ -1,7 +1,8 @@
 import Feather from "@expo/vector-icons/Feather";
 import { useColorScheme } from "nativewind";
+import { PressableOpacity } from "pressto";
 import { useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -27,17 +28,14 @@ const ThemeToggle = () => {
   });
 
   return (
-    <Pressable
-      onPress={toggleColorScheme}
-      className="w-24 h-12 p-1 bg-secondary relative flex-row rounded-full items-center justify-between"
-    >
-      <Icon icon="sun" />
+    <PressableOpacity onPress={toggleColorScheme}>
+      {/* <Icon icon="sun" /> */}
       <Icon icon="moon" />
       <Animated.View
         style={[animatedStyle]}
         className="w-10 h-10 bg-background rounded-full items-center justify-center flex flex-row absolute"
       />
-    </Pressable>
+    </PressableOpacity>
   );
 };
 

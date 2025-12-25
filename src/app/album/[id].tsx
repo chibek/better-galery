@@ -1,9 +1,9 @@
 import { useMediaPermissions } from "@hooks/useMediaPermissions";
 import { Image } from "expo-image";
 import * as MediaLibrary from "expo-media-library";
-import { useLocalSearchParams, Stack } from "expo-router";
+import { Stack,useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { ActivityIndicator,View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ZoomGrid } from "react-native-zoom-grid";
 

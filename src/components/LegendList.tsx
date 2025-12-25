@@ -1,12 +1,12 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo,useState } from "react";
 import {
-  View,
-  ScrollView,
   Dimensions,
-  NativeSyntheticEvent,
   NativeScrollEvent,
-  ViewStyle,
+  NativeSyntheticEvent,
+  ScrollView,
   ScrollViewProps,
+  View,
+  ViewStyle,
 } from "react-native";
 
 interface LegendListProps<T>

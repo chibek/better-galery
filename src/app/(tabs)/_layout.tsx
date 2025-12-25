@@ -1,3 +1,4 @@
+import ThemeToggle from "@components/ThemeToggle";
 import { Stack } from "expo-router";
 import { useColorScheme } from "nativewind";
 
@@ -15,7 +16,15 @@ export default function TabLayout() {
         },
         headerTitleStyle: {
           color: isDark ? "#fff" : "#000",
+          fontFamily: "BebasNeue",
+          fontSize: 24,
         },
+        headerLargeTitleStyle: {
+          color: isDark ? "#fff" : "#000",
+          fontFamily: "BebasNeue",
+          fontSize: 48,
+        },
+        headerRight: () => <ThemeToggle />,
       }}
     >
       <Stack.Screen

@@ -15,10 +15,11 @@ module.exports = function (api) {
             "@app": "./src/app",
             "@components": "./src/components",
             "@styles": "./src/styles",
+            "@hooks": "./src/hooks",
           },
         },
       ],
-      "react-native-reanimated/plugin",
+      "react-native-worklets/plugin",
     ],
   };
 };
