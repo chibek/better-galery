@@ -29,7 +29,6 @@ const ThemeToggle = () => {
 
   return (
     <PressableOpacity onPress={toggleColorScheme}>
-      {/* <Icon icon="sun" /> */}
       <Icon icon="moon" />
       <Animated.View
         style={[animatedStyle]}

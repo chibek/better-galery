@@ -1,39 +1,20 @@
+import { useAlbumAssets } from "@hooks/useAlbums";
 import { useMediaPermissions } from "@hooks/useMediaPermissions";
 import { Image } from "expo-image";
 import * as MediaLibrary from "expo-media-library";
-import { Stack,useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { ActivityIndicator,View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useLocalSearchParams } from "expo-router";
+import { ActivityIndicator, View } from "react-native";
 import { ZoomGrid } from "react-native-zoom-grid";
 
 export default function AlbumPhotosScreen() {
-  const { id, title } = useLocalSearchParams<{ id: string; title: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { status } = useMediaPermissions();
-  const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (status?.granted && id) {
-      loadAssets(id);
-    }
-  }, [status, id]);
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useAlbumAssets(id!, !!status?.granted);
 
-  async function loadAssets(albumId: string) {
-    try {
-      const { assets: newAssets } = await MediaLibrary.getAssetsAsync({
-        album: albumId,
-        first: 500, // Load more for album view
-        mediaType: "photo",
-        sortBy: ["creationTime"],
-      });
-      setAssets(newAssets);
-    } catch (e) {
-      console.error("Failed to load assets", e);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // Flatten the pages into one array of assets
+  const assets = data?.pages.flatMap((page) => page.assets) ?? [];
 
   const renderItem = ({
     item,
@@ -50,7 +31,7 @@ export default function AlbumPhotosScreen() {
     />
   );
 
-  if (!status?.granted || loading) {
+  if (!status?.granted || isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-white dark:bg-black">
         <ActivityIndicator size="large" />
@@ -59,18 +40,23 @@ export default function AlbumPhotosScreen() {
   }
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-white dark:bg-black"
-      edges={["bottom", "left", "right"]}
-    >
-      <Stack.Screen options={{ title: title || "Album" }} />
+    <View className="flex-1 bg-white dark:bg-black">
       <ZoomGrid
         data={assets}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         initialNumColumns={3}
         zoomLevels={[5, 3, 1]}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          isFetchingNextPage ? <ActivityIndicator className="p-4" /> : null
+        }
       />
-    </SafeAreaView>
+    </View>
   );
 }

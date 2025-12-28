@@ -1,63 +1,60 @@
 import { LegendList } from "@components/LegendList";
+import { useAlbums } from "@hooks/useAlbums";
 import { useMediaPermissions } from "@hooks/useMediaPermissions";
+import { getAlbumColor } from "@utils/album-styles";
 import * as MediaLibrary from "expo-media-library";
 import { Link } from "expo-router";
+import { useColorScheme } from "nativewind";
 import { PressableScale } from "pressto";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet,Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 export default function AlbumsScreen() {
   const { status } = useMediaPermissions();
-  const [albums, setAlbums] = useState<MediaLibrary.Album[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { colorScheme } = useColorScheme();
+  const { data: albums, isLoading, error } = useAlbums(!!status?.granted);
+  const isDark = colorScheme === "dark";
 
-  useEffect(() => {
-    if (status?.granted) {
-      loadAlbums();
-    }
-  }, [status]);
+  const renderItem = ({ item }: { item: MediaLibrary.Album }) => {
+    const bg = getAlbumColor(item);
 
-  async function loadAlbums() {
-    try {
-      const fetchedAlbums = await MediaLibrary.getAlbumsAsync({
-        includeSmartAlbums: true,
-      });
-      setAlbums(fetchedAlbums);
-    } catch (e) {
-      console.error("Failed to load albums", e);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const renderItem = ({ item }: { item: MediaLibrary.Album }) => (
-    <View className="p-2 w-full h-full">
-      <Link
-        href={{
-          pathname: "/album/[id]",
-          params: { id: item.id, title: item.title },
-        }}
-        asChild
+    return (
+      <View
+        className="shadow-md"
+        style={[styles.albumCard, { backgroundColor: bg }]}
       >
-        <PressableScale style={[styles.albumCard]}>
-          <View className="p-2">
-            <Text
-              className="text-black dark:text-white"
-              style={{ fontFamily: "BebasNeue", fontSize: 28 }}
-              numberOfLines={1}
-            >
-              {item.title}
-            </Text>
-            <Text className="text-xs text-gray-500 dark:text-gray-400">
-              {item.assetCount}
-            </Text>
-          </View>
-        </PressableScale>
-      </Link>
-    </View>
-  );
+        <Link
+          href={{
+            pathname: "/album/[id]",
+            params: { id: item.id, title: item.title },
+          }}
+          asChild
+        >
+          <PressableScale>
+            <View className="p-4 h-full">
+              <View className="flex-row items-start">
+                <Text
+                  className="text-black dark:text-white pr-10"
+                  style={{ fontFamily: "BebasNeue", fontSize: 38 }}
+                  numberOfLines={1}
+                >
+                  {item.title}
+                </Text>
+                <Text className="bg-white text-black dark:text-white dark:bg-gray-800 rounded-full px-2 py-0.5">
+                  {item.assetCount}
+                </Text>
+              </View>
 
-  if (!status?.granted || loading) {
+              <Text className="text-gray-600 text-sm">
+                May 2023 - 14 photos
+              </Text>
+            </View>
+          </PressableScale>
+        </Link>
+      </View>
+    );
+  };
+
+  if (!status?.granted || isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-white dark:bg-black">
         <ActivityIndicator size="large" />
@@ -68,9 +65,12 @@ export default function AlbumsScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-black">
       <LegendList
-        data={albums}
+        data={albums || []}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        style={{
+          paddingVertical: 2,
+        }}
         numColumns={1}
         estimatedItemSize={200}
         contentInsetAdjustmentBehavior="automatic"
@@ -82,12 +82,14 @@ export default function AlbumsScreen() {
 const styles = StyleSheet.create({
   albumCard: {
     flex: 1,
-    borderRadius: 12, // rounded-lg ≈ 12
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    marginBottom: -12,
   },
   lightBg: {
-    backgroundColor: "#fecaca", // red-200
+    backgroundColor: "#fecaca",
   },
   darkBg: {
-    backgroundColor: "#1e40af", // blue-800
+    backgroundColor: "#1e40af",
   },
 });

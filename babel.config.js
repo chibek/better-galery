@@ -16,10 +16,13 @@ module.exports = function (api) {
             "@components": "./src/components",
             "@styles": "./src/styles",
             "@hooks": "./src/hooks",
+            "@utils": "./src/utils",
+            "@api": "./src/api",
           },
         },
       ],
       "react-native-worklets/plugin",
+      ["inline-import", { extensions: [".sql"] }],
     ],
   };
 };
