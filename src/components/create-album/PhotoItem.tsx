@@ -16,21 +16,20 @@ export const PhotoItem = memo(
       <TouchableOpacity
         onPress={() => onToggle(item.id)}
         activeOpacity={0.8}
-        style={{ width: size, height: size, padding: 1 }}
+        style={{ width: size, height: size, padding: 2 }}
       >
         <Image
           source={{ uri: item.uri }}
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "100%", borderRadius: 4 }}
           contentFit="cover"
           transition={150}
-          // Caching is essential for grid scrolling performance
           cachePolicy="memory-disk"
         />
 
         {/* Selection Overlay */}
         {isSelected && (
-          <View className="absolute inset-0 bg-blue-500/20 items-center justify-center m-0.5 border-2 border-blue-500 rounded-sm">
-            <View className="bg-blue-600 rounded-full">
+          <View className="absolute inset-2 bg-blue-500/30 items-center justify-center border-2 border-white rounded-md">
+            <View className="bg-blue-600 rounded-full shadow-sm">
               <Ionicons name="checkmark-circle" size={24} color="white" />
             </View>
           </View>
@@ -39,9 +38,6 @@ export const PhotoItem = memo(
     );
   },
   (prev, next) => {
-    // Only re-render if selection status or URI changes
-    return (
-      prev.isSelected === next.isSelected && prev.item.uri === next.item.uri
-    );
+    return prev.isSelected === next.isSelected && prev.item.id === next.item.id;
   }
 );

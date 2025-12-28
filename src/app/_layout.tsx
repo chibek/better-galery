@@ -12,7 +12,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import migrations from "@drizzle/migrations";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
-import { db, expoDb as expoDB } from "@db/client";
+import { db, expoDb } from "@db/client";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,7 +34,7 @@ export default function RootLayout() {
   const isReady = fontsLoaded && migrationsSuccess;
 
   if (__DEV__) {
-    useDrizzleStudio(expoDB);
+    useDrizzleStudio(expoDb);
   }
 
   useEffect(() => {

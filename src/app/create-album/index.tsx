@@ -2,21 +2,23 @@ import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   TextInput,
-  TouchableOpacity,
   Text,
   ActivityIndicator,
   Dimensions,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { useAlbumAssets } from "@hooks/useAlbums";
 import { PhotoItem } from "@components/create-album/PhotoItem";
 import { LegendList } from "@legendapp/list";
 import { AlbumConfiguration } from "@components/create-album/AlbumConfiguration";
+import { ButtonOpacity, ButtonScale } from "@components/Pressto";
 
 const { width } = Dimensions.get("window");
 const COLUMN_COUNT = 3;
 const ITEM_SIZE = width / COLUMN_COUNT;
 
 export default function CreateAlbumModal() {
+  const router = useRouter();
   const [step, setStep] = useState<"select" | "customize">("select");
   const [title, setTitle] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -62,13 +64,14 @@ export default function CreateAlbumModal() {
         title={title}
         selectedAssets={selectedAssets}
         onBack={() => setStep("select")}
+        onFinish={() => router.back()}
       />
     );
   }
 
   return (
-    <View className="flex-1 bg-white dark:bg-black">
-      <View className="p-4 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-black z-10">
+    <View className="flex-1  bg-white dark:bg-black">
+      <View className="py-8 px-4">
         <TextInput
           value={title}
           onChangeText={setTitle}
@@ -87,6 +90,7 @@ export default function CreateAlbumModal() {
         keyExtractor={(item) => item.id}
         numColumns={COLUMN_COUNT}
         estimatedItemSize={ITEM_SIZE}
+        extraData={selectedIds}
         onEndReached={() =>
           hasNextPage && !isFetchingNextPage && fetchNextPage()
         }
@@ -97,9 +101,9 @@ export default function CreateAlbumModal() {
       />
 
       <View className="absolute bottom-10 left-0 right-0 items-center px-6">
-        <TouchableOpacity
+        <ButtonScale
           onPress={handleNextStep}
-          disabled={!title || selectedIds.length === 0}
+          enabled={Boolean(title) && selectedIds.length > 0}
           className={`w-full p-4 rounded-2xl items-center shadow-xl ${
             !title || selectedIds.length === 0
               ? "bg-gray-300 dark:bg-gray-800"
@@ -109,7 +113,7 @@ export default function CreateAlbumModal() {
           <Text className="text-white font-bold text-lg">
             Next: Customize Card
           </Text>
-        </TouchableOpacity>
+        </ButtonScale>
       </View>
     </View>
   );

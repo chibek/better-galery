@@ -3,10 +3,7 @@ import {
   PressableScale,
   PressableWithoutFeedback,
 } from "pressto";
-import type { StyleProp, ViewStyle } from "react-native";
 import { cssInterop } from "react-native-css-interop";
-
-type WithStyle<T> = T & { style?: StyleProp<ViewStyle> };
 
 export const ButtonOpacity = cssInterop(PressableOpacity, {
   className: {
