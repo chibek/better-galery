@@ -1,21 +1,36 @@
 import { LegendList } from "@components/LegendList";
+import { ButtonScale } from "@components/Pressto";
 import { useAlbums } from "@hooks/useAlbums";
 import { useMediaPermissions } from "@hooks/useMediaPermissions";
 import { getAlbumColor } from "@utils/album-styles";
 import * as MediaLibrary from "expo-media-library";
 import { Link } from "expo-router";
-import { useColorScheme } from "nativewind";
-import { PressableScale } from "pressto";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 export default function AlbumsScreen() {
   const { status } = useMediaPermissions();
-  const { colorScheme } = useColorScheme();
   const { data: albums, isLoading, error } = useAlbums(!!status?.granted);
-  const isDark = colorScheme === "dark";
 
   const renderItem = ({ item }: { item: MediaLibrary.Album }) => {
     const bg = getAlbumColor(item);
+    const totalPhotosAvailable =
+      albums?.find((a) => a.id === "all")?.assetCount ?? 0;
+
+    if (status?.accessPrivileges === "limited" && totalPhotosAvailable === 0) {
+      return (
+        <View className="flex-1 justify-center items-center p-6">
+          <Text className="text-center mb-4">
+            You haven't selected any photos yet.
+          </Text>
+          <ButtonScale
+            onPress={() => MediaLibrary.presentPermissionsPickerAsync()}
+            className="bg-blue-500 px-6 py-3 rounded-lg"
+          >
+            <Text className="text-white">Select Photos</Text>
+          </ButtonScale>
+        </View>
+      );
+    }
 
     return (
       <View
@@ -29,7 +44,7 @@ export default function AlbumsScreen() {
           }}
           asChild
         >
-          <PressableScale>
+          <ButtonScale>
             <View className="p-4 h-full">
               <View className="flex-row items-start">
                 <Text
@@ -48,7 +63,7 @@ export default function AlbumsScreen() {
                 May 2023 - 14 photos
               </Text>
             </View>
-          </PressableScale>
+          </ButtonScale>
         </Link>
       </View>
     );

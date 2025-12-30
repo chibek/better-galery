@@ -42,11 +42,6 @@ module.exports = {
         granularPermissions: ["audio", "photo"],
       },
     ],
-    [
-      "expo-sqlite",
-      {
-        useLibSQL: true,
-      },
-    ],
+    ["expo-sqlite"],
   ],
 };

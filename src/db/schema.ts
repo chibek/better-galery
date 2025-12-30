@@ -11,9 +11,7 @@ export const albumMetadata = sqliteTable(
       () => new Date()
     ),
   },
-  (table) => ({
-    orderIdx: index("order_idx").on(table.displayOrder),
-  })
+  (table) => [index("order_idx").on(table.displayOrder)]
 );
 
 export type AlbumMetadata = typeof albumMetadata.$inferSelect;
