@@ -30,12 +30,13 @@ export function LegendList<T>({
   ListHeaderComponent,
   ...scrollViewProps
 }: LegendListProps<T>) {
+  const windowWidth = Dimensions.get("window").width;
+  const [containerWidth, setContainerWidth] = useState(windowWidth);
   const [scrollY, setScrollY] = useState(0);
   const windowHeight = Dimensions.get("window").height;
-  const windowWidth = Dimensions.get("window").width;
 
   // Calculate grid layout
-  const itemWidth = windowWidth / numColumns;
+  const itemWidth = containerWidth / numColumns;
   const totalRows = Math.ceil(data.length / numColumns);
   const totalHeight = totalRows * estimatedItemSize;
 
@@ -101,9 +102,12 @@ export function LegendList<T>({
 
   return (
     <ScrollView
-      scrollEventThrottle={16} // 60fps
+      scrollEventThrottle={16}
       {...scrollViewProps}
       onScroll={handleScroll}
+      onLayout={(e) => {
+        setContainerWidth(e.nativeEvent.layout.width);
+      }}
       contentContainerStyle={[
         contentContainerStyle,
         { height: totalHeight, position: "relative" },

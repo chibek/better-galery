@@ -19,7 +19,7 @@ export function useMediaPermissions() {
       }, 100);
     } else if (status?.granted && inOnboarding) {
       // If permissions are granted and we are in onboarding, go to home
-      router.replace("/");
+      router.replace("/(tabs)/recents");
     }
   }, [status, segments, router]);
 
@@ -31,5 +31,6 @@ export function useMediaPermissions() {
   return {
     status,
     requestMediaPermission,
+    isLimited: status?.accessPrivileges === "limited",
   };
 }

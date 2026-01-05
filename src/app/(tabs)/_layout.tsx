@@ -1,7 +1,7 @@
 import { ButtonOpacity } from "@components/Pressto";
 import ThemeToggle from "@components/ThemeToggle";
 import { Ionicons } from "@expo/vector-icons";
-import { Link, Stack } from "expo-router";
+import { Link, Tabs } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { View } from "react-native";
 
@@ -10,10 +10,9 @@ export default function TabLayout() {
   const isDark = colorScheme === "dark";
 
   return (
-    <Stack
+    <Tabs
       screenOptions={{
         headerShown: true,
-        headerLargeTitle: true,
         headerStyle: {
           backgroundColor: isDark ? "#000" : "#fff",
         },
@@ -22,13 +21,21 @@ export default function TabLayout() {
           fontFamily: "BebasNeue",
           fontSize: 24,
         },
-        headerLargeTitleStyle: {
-          color: isDark ? "#fff" : "#000",
-          fontFamily: "BebasNeue",
-          fontSize: 48,
+        tabBarStyle: {
+          backgroundColor: isDark ? "#000" : "#fff",
+          borderTopColor: isDark ? "#333" : "#eee",
         },
+        tabBarActiveTintColor: isDark ? "#fff" : "#000",
+        tabBarInactiveTintColor: isDark ? "#666" : "#999",
+        headerTitleAlign: "left",
         headerRight: () => (
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              paddingRight: 16,
+            }}
+          >
             <ThemeToggle />
             <Link href="/create-album" asChild>
               <ButtonOpacity className="ml-4 p-2">
@@ -43,12 +50,39 @@ export default function TabLayout() {
         ),
       }}
     >
-      <Stack.Screen
-        name="index"
+      <Tabs.Screen
+        name="albums"
         options={{
-          title: "Albums",
+          title: "Album",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="albums" size={size} color={color} />
+          ),
         }}
       />
-    </Stack>
+      <Tabs.Screen
+        name="recents"
+        options={{
+          title: "Recents",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="time" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="remove"
+        options={{
+          title: "Remove",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="trash" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        options={{
+          href: null,
+        }}
+      />
+    </Tabs>
   );
 }

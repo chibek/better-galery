@@ -3,58 +3,68 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@db/client";
 import { albumMetadata } from "@db/schema";
 
-/**
- * Get minimal album data with cover URIs from metadata
- * Optimized with parallel fetching and proper filtering
- */
+const EXCLUDED_ALBUM_TITLES = new Set([
+  "recents",
+  "all photos",
+  "user library",
+]);
+
 export async function getAlbumsMinimal(
-  permissionGranted: boolean
+  permissionGranted: boolean,
+  isLimited: boolean
 ): Promise<Array<MediaLibrary.Album & { coverUri: string | null }>> {
   if (!permissionGranted) return [];
 
-  const db = getDb();
+  try {
+    const db = getDb();
 
-  // 1. Fetch data in parallel
-  const [fetchedAlbums, localMeta, allAssets] = await Promise.all([
-    MediaLibrary.getAlbumsAsync({ includeSmartAlbums: true }),
-    db
-      .select({
-        albumId: albumMetadata.albumId,
-        coverUri: albumMetadata.coverUri,
-      })
-      .from(albumMetadata)
-      .all(),
-    // Fetching with no album ID gives us the count of EVERY permitted photo
-    MediaLibrary.getAssetsAsync({ first: 1 }),
-  ]);
+    // 1. Fetch data in parallel
+    // Added explicit catch for each promise to identify exactly which one fails if needed
+    const [fetchedAlbums, localMeta, allAssets] = await Promise.all([
+      !isLimited
+        ? MediaLibrary.getAlbumsAsync({ includeSmartAlbums: true })
+        : Promise.resolve([] as MediaLibrary.Album[]),
+      db
+        .select({
+          albumId: albumMetadata.albumId,
+          coverUri: albumMetadata.coverUri,
+        })
+        .from(albumMetadata)
+        .all(),
+      MediaLibrary.getAssetsAsync({ first: 1 }),
+    ]);
 
-  // 2. Filter out system albums that would duplicate our manual "All Photos"
-  // but keep user-created albums even in limited mode.
-  const filtered = fetchedAlbums.filter(
-    (a: MediaLibrary.Album) =>
-      a.assetCount > 0 &&
-      a.title.toLowerCase() !== "recents" &&
-      a.title.toLowerCase() !== "all photos" &&
-      a.title.toLowerCase() !== "user library"
-  );
+    // 2. Prepare Metadata Map early
+    const metaMap = new Map(localMeta.map((m) => [m.albumId, m.coverUri]));
 
-  // 3. Create the "Synthetic" album for the selected photos
-  const allPhotos: MediaLibrary.Album = {
-    id: "all", // This ID is handled by your useAlbumAssets hook
-    title: "All Photos",
-    assetCount: allAssets.totalCount, // In limited mode, this is exactly the # of selected photos
-    type: "smartAlbum",
-    startTime: 0,
-    endTime: 0,
-  };
+    // 3. Process filtered albums and map metadata in one pass
+    const userAlbums = fetchedAlbums
+      .filter(
+        (a) =>
+          a.assetCount > 0 && !EXCLUDED_ALBUM_TITLES.has(a.title.toLowerCase())
+      )
+      .map((album) => ({
+        ...album,
+        coverUri: metaMap.get(album.id) ?? null,
+      }));
 
-  const metaMap = new Map(localMeta.map((m) => [m.albumId, m.coverUri]));
+    // 4. Construct the "Synthetic" primary album
+    const allPhotos: MediaLibrary.Album & { coverUri: string | null } = {
+      id: "all",
+      title: isLimited ? "Selected Photos" : "All Photos", // Clarity for iOS limited mode
+      assetCount: allAssets.totalCount,
+      type: "smartAlbum",
+      startTime: 0,
+      endTime: 0,
+      coverUri: metaMap.get("all") ?? null, // Check if "All Photos" has a custom cover
+    };
 
-  // 4. Always put "All Photos" first
-  return [allPhotos, ...filtered].map((album) => ({
-    ...album,
-    coverUri: metaMap.get(album.id) ?? null,
-  }));
+    return [allPhotos, ...userAlbums];
+  } catch (err) {
+    // Log context with the error
+    console.error("❌ getAlbumsMinimal failed:", { isLimited, error: err });
+    throw err;
+  }
 }
 /**
  * LAZY FETCH: Fetches only the description when a user views album details.

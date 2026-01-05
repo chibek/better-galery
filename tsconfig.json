@@ -13,7 +13,8 @@
       "@utils/*": ["./src/utils/*"],
       "@api/*": ["./src/api/*"],
       "@db/*": ["./src/db/*"],
-      "@drizzle/*": ["./drizzle/*"]
+      "@drizzle/*": ["./drizzle/*"],
+      "@views/*": ["./src/views/*"]
     }
   }
 }

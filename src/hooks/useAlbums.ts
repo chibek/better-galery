@@ -11,26 +11,12 @@ import {
   getAlbumsMinimal,
 } from "@api/albums";
 
-export function useAlbums(permissionGranted: boolean) {
+export function useAlbums(permissionGranted: boolean, isLimited: boolean) {
   return useQuery({
     queryKey: ["albums"],
     enabled: permissionGranted,
     queryFn: async () => {
-      const albums = await getAlbumsMinimal(permissionGranted);
-
-      // If we have permission but no albums are returned (common in "Limited" mode),
-      // or even if they are, we often want a "Recents" entry at the top.
-      if (albums.length === 0 && permissionGranted) {
-        return [
-          {
-            id: "all",
-            title: "Recents",
-            assetCount: 0, // Assets will be fetched by the assets hook
-            type: "smartAlbum",
-          } as MediaLibrary.Album,
-        ];
-      }
-
+      const albums = await getAlbumsMinimal(permissionGranted, isLimited);
       return albums;
     },
   });
