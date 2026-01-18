@@ -1,7 +1,7 @@
-import * as MediaLibrary from "expo-media-library";
-import { eq } from "drizzle-orm";
 import { getDb } from "@db/client";
 import { albumMetadata } from "@db/schema";
+import { eq } from "drizzle-orm";
+import * as MediaLibrary from "expo-media-library";
 
 const EXCLUDED_ALBUM_TITLES = new Set([
   "recents",
@@ -12,7 +12,7 @@ const EXCLUDED_ALBUM_TITLES = new Set([
 export async function getAlbumsMinimal(
   permissionGranted: boolean,
   isLimited: boolean
-): Promise<Array<MediaLibrary.Album & { coverUri: string | null }>> {
+): Promise<(MediaLibrary.Album & { coverUri: string | null })[]> {
   if (!permissionGranted) return [];
 
   try {

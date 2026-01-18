@@ -1,6 +1,6 @@
-import { memo } from "react";
-import { View, Text } from "react-native";
 import { ImageBackground } from "@components/ImageBackground";
+import { memo } from "react";
+import { Text,View } from "react-native";
 
 export const AlbumPreview = memo(
   ({

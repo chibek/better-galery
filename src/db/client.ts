@@ -1,6 +1,6 @@
-import { openDatabaseSync, SQLiteDatabase } from "expo-sqlite";
-import { drizzle, ExpoSQLiteDatabase } from "drizzle-orm/expo-sqlite";
 import * as schema from "./schema";
+import { drizzle, ExpoSQLiteDatabase } from "drizzle-orm/expo-sqlite";
+import { openDatabaseSync, SQLiteDatabase } from "expo-sqlite";
 
 export const DATABASE_NAME = "gallery.db";
 

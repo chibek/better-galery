@@ -33,6 +33,7 @@ module.exports = {
     "expo-router",
     "expo-font",
     "expo-splash-screen",
+    "expo-image",
     [
       "expo-media-library",
       {

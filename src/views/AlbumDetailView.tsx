@@ -1,22 +1,20 @@
+import { ButtonOpacity } from "@components/Pressto";
+import { Ionicons } from "@expo/vector-icons";
 import { useAlbumAssets } from "@hooks/useAlbums";
 import { useMediaPermissions } from "@hooks/useMediaPermissions";
+import { LegendList } from "@legendapp/list";
 import { Image } from "expo-image";
 import * as MediaLibrary from "expo-media-library";
-import { useLocalSearchParams } from "expo-router";
-import { useState, useRef, useCallback } from "react";
-import {
-  ActivityIndicator,
-  View,
-  Modal,
-  Pressable,
-  Dimensions,
-} from "react-native";
-import { ZoomGrid } from "react-native-zoom-grid";
-import { LegendList } from "@legendapp/list";
-import { ButtonWithoutFeedback } from "@components/Pressto";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback } from "react";
+import { ActivityIndicator, Dimensions,StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Transition from "react-native-screen-transitions";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-const THUMBNAIL_HEIGHT = 100;
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const NUM_COLUMNS = 3;
+const SPACING = 2;
+const ITEM_SIZE = (SCREEN_WIDTH - SPACING * (NUM_COLUMNS + 1)) / NUM_COLUMNS;
 
 export default function AlbumDetailView() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,172 +23,130 @@ export default function AlbumDetailView() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useAlbumAssets(id!, !!status?.granted);
 
-  const assets = data?.pages.flatMap((page) => page.assets) ?? [];
+  const assets: MediaLibrary.Asset[] =
+    data?.pages.flatMap((page: any) => page.assets) ?? [];
 
-  const openImage = useCallback((index: number) => {
-    console.log("click", { index });
-  }, []);
-
-  // const handleThumbnailPress = useCallback((index: number) => {
-  //   setSelectedIndex(index);
-  //   // Scroll the full image carousel to the selected index
-  //   currentImageRef.current?.scrollToIndex({
-  //     index,
-  //     animated: true,
-  //   });
-  //   // Scroll the thumbnail to center the selected item
-  //   thumbnailScrollRef.current?.scrollToIndex({
-  //     index,
-  //     animated: true,
-  //     viewPosition: 0.5, // Center the item
-  //   });
-  // }, []);
+  const router = useRouter();
 
   const renderItem = useCallback(
-    ({
-      item,
-      size,
-      index,
-    }: {
-      item: MediaLibrary.Asset;
-      size: number;
-      index: number;
-    }) => (
-      <ButtonWithoutFeedback onPress={() => openImage(index)}>
-        <Image
-          source={{ uri: item.uri }}
-          style={{ width: size, height: size }}
-          contentFit="cover"
-          transition={200}
-          sharedTransitionTag={`photo-${item.id}`}
-        />
-      </ButtonWithoutFeedback>
-    ),
-    [openImage]
+    ({ item, index }: { item: MediaLibrary.Asset; index: number }) => {
+      const sharedBoundTag = `photo-${item.id}`;
+
+      return (
+        <Transition.Pressable
+          sharedBoundTag={sharedBoundTag}
+          style={styles.gridItem}
+          onPress={() => {
+            router.push({
+              pathname: "/album/photo" as any,
+              params: {
+                id: item.id,
+                uri: item.uri,
+                sharedBoundTag,
+              } as any,
+            });
+          }}
+        >
+          <Image
+            source={{ uri: item.uri }}
+            style={styles.image}
+            contentFit="cover"
+            transition={200}
+          />
+        </Transition.Pressable>
+      );
+    },
+    [router]
   );
 
-  // const renderFullImage = useCallback(
-  //   ({ item }: { item: MediaLibrary.Asset }) => (
-  //     <View
-  //       style={{
-  //         width: SCREEN_WIDTH,
-  //         height: SCREEN_HEIGHT - THUMBNAIL_HEIGHT,
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //       }}
-  //     >
-  //       <Image
-  //         source={{ uri: item.uri }}
-  //         style={{
-  //           width: SCREEN_WIDTH,
-  //           height: SCREEN_HEIGHT - THUMBNAIL_HEIGHT,
-  //         }}
-  //         contentFit="contain"
-  //       />
-  //     </View>
-  //   ),
-  //   []
-  // );
-
-  // const ThumbnailItem = useCallback(
-  //   ({ item, index }: { item: MediaLibrary.Asset; index: number }) => {
-  //     const isSelected = selectedIndex === index;
-
-  //     return (
-  //       <Pressable
-  //         onPress={() => handleThumbnailPress(index)}
-  //         style={{ marginHorizontal: 4 }}
-  //       >
-  //         <View
-  //           style={{
-  //             width: 80,
-  //             height: 80,
-  //             borderRadius: 4,
-  //             overflow: "hidden",
-  //             borderWidth: isSelected ? 3 : 0,
-  //             borderColor: "white",
-  //             opacity: isSelected ? 1 : 0.6,
-  //           }}
-  //         >
-  //           <Image
-  //             source={{ uri: item.uri }}
-  //             style={{ width: 80, height: 80 }}
-  //             contentFit="cover"
-  //           />
-  //         </View>
-  //       </Pressable>
-  //     );
-  //   },
-  //   [selectedIndex, handleThumbnailPress]
-  // );
+  const renderFooter = () => {
+    if (!isFetchingNextPage) return null;
+    return (
+      <View style={styles.footer}>
+        <ActivityIndicator />
+      </View>
+    );
+  };
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
-      <ZoomGrid
+      <SafeAreaView edges={["top"]} style={styles.header}>
+        <ButtonOpacity onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={24} color="#000" />
+        </ButtonOpacity>
+        <View style={styles.headerActions}>
+          <ButtonOpacity
+            style={styles.actionButton}
+            onPress={() => console.log("Edit pressed")}
+          >
+            <Ionicons name="pencil-outline" size={20} color="#000" />
+          </ButtonOpacity>
+          <ButtonOpacity
+            style={styles.actionButton}
+            onPress={() => console.log("Share pressed")}
+          >
+            <Ionicons name="share-outline" size={20} color="#000" />
+          </ButtonOpacity>
+        </View>
+      </SafeAreaView>
+
+      <LegendList
         data={assets}
-        renderItem={({ item, size }) => {
-          const index = assets.findIndex((a) => a.id === item.id);
-          return renderItem({ item, size, index });
-        }}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        initialNumColumns={3}
-        zoomLevels={[5, 3, 1]}
+        numColumns={NUM_COLUMNS}
+        estimatedItemSize={ITEM_SIZE}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
           }
         }}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          isFetchingNextPage ? <ActivityIndicator className="p-4" /> : null
-        }
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={styles.contentContainer}
+        drawDistance={ITEM_SIZE * 6} // Pre-render 6 rows
       />
-
-      {/* <Modal
-        visible={isVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={closeImage}
-        statusBarTranslucent
-      >
-        <View className="flex-1 bg-black">
-          <Pressable onPress={closeImage} className="flex-1">
-            <LegendList
-              ref={currentImageRef}
-              data={assets}
-              renderItem={renderFullImage}
-              keyExtractor={(item) => item.id}
-              horizontal
-              pagingEnabled
-              estimatedItemSize={SCREEN_WIDTH}
-              showsHorizontalScrollIndicator={false}
-              initialScrollIndex={selectedIndex}
-              scrollEventThrottle={16}
-              onScroll={handleFullImageScroll}
-            />
-          </Pressable>
-
-          <View
-            style={{
-              height: THUMBNAIL_HEIGHT,
-              backgroundColor: "rgba(0,0,0,0.9)",
-              paddingVertical: 10,
-            }}
-          >
-            <LegendList
-              ref={thumbnailScrollRef}
-              data={assets}
-              renderItem={ThumbnailItem}
-              keyExtractor={(item) => item.id}
-              horizontal
-              estimatedItemSize={88}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 8 }}
-              initialScrollIndex={selectedIndex}
-            />
-          </View>
-        </View>
-      </Modal> */}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "transparent",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  actionButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  contentContainer: {
+    padding: SPACING,
+  },
+  gridItem: {
+    width: ITEM_SIZE,
+    height: ITEM_SIZE,
+    marginBottom: SPACING,
+    marginHorizontal: SPACING / 2,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  footer: {
+    padding: 16,
+    alignItems: "center",
+  },
+});

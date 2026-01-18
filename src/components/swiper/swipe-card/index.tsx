@@ -1,11 +1,13 @@
+import type { SwiperCardOptions, SwiperCardRefType } from "../types";
+import OverlayLabel from "./OverlayLabel";
 import React, {
   forwardRef,
   memo,
+  type PropsWithChildren,
   useCallback,
   useImperativeHandle,
-  type PropsWithChildren,
 } from "react";
-import { useWindowDimensions, StyleSheet } from "react-native";
+import { StyleSheet,useWindowDimensions } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   cancelAnimation,
@@ -17,10 +19,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import type { SwiperCardOptions, SwiperCardRefType } from "../types";
 import { scheduleOnRN, scheduleOnUI } from "react-native-worklets";
-
-import OverlayLabel from "./OverlayLabel";
 
 const SwipeableCard = forwardRef(function SwipeableCard<T>(
   props: PropsWithChildren<SwiperCardOptions<T>>,

@@ -1,15 +1,15 @@
+import { ButtonOpacity } from "@components/Pressto";
+import { Swiper, type SwiperCardRefType } from "@components/swiper";
+import { AntDesign } from "@expo/vector-icons";
 import React, { useCallback, useRef } from "react";
 import {
   Image,
+  type ImageSourcePropType,
   StyleSheet,
   Text,
   View,
-  type ImageSourcePropType,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { AntDesign } from "@expo/vector-icons";
-import { Swiper, type SwiperCardRefType } from "@components/swiper";
-import { ButtonOpacity } from "@components/Pressto";
 
 const IMAGES: ImageSourcePropType[] = [
   { uri: "https://i.pravatar.cc/400?img=1" },

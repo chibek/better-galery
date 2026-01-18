@@ -1,9 +1,9 @@
 import { type JSX, type PropsWithChildren } from "react";
-import { StyleSheet, type StyleProp, type ViewStyle } from "react-native";
+import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import Animated, {
   interpolate,
-  useAnimatedStyle,
   type SharedValue,
+  useAnimatedStyle,
 } from "react-native-reanimated";
 
 type Props = PropsWithChildren<{

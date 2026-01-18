@@ -1,7 +1,7 @@
-import React, { memo } from "react";
-import { ScrollView, View, Text } from "react-native";
-import { Image } from "expo-image";
 import { ButtonOpacity } from "@components/Pressto";
+import { Image } from "expo-image";
+import React, { memo } from "react";
+import { ScrollView, Text,View } from "react-native";
 
 interface Asset {
   id: string;

@@ -1,13 +1,13 @@
+import type { SwiperCardRefType } from "../types";
 import {
   createRef,
+  type RefObject,
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  type RefObject,
 } from "react";
 import { useSharedValue } from "react-native-reanimated";
-import type { SwiperCardRefType } from "../types";
 
 const useSwipeControls = <T>(
   data: T[],

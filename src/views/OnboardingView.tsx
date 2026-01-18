@@ -1,15 +1,15 @@
-import { useRef, useState, useEffect } from "react";
+import { BottomNavigation } from "@components/onboarding-views/BottomNavigation";
+import {
+  FinishPage,
+  PermissionsPage,
+  WelcomePage,
+} from "@components/onboarding-views/OnboadringViews";
+import * as MediaLibrary from "expo-media-library";
+import { useRouter } from "expo-router";
+import { useEffect,useRef, useState } from "react";
 import { Linking, View } from "react-native";
 import PagerView from "react-native-pager-view";
 import { useSharedValue, withTiming } from "react-native-reanimated";
-import * as MediaLibrary from "expo-media-library";
-import { useRouter } from "expo-router";
-import {
-  WelcomePage,
-  PermissionsPage,
-  FinishPage,
-} from "@components/onboarding-views/OnboadringViews";
-import { BottomNavigation } from "@components/onboarding-views/BottomNavigation";
 
 export default function OnboardingView() {
   const pagerRef = useRef<PagerView>(null);

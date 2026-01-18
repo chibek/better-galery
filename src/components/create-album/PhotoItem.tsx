@@ -1,7 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import React, { memo } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Image } from "expo-image";
-import { Ionicons } from "@expo/vector-icons";
 
 interface PhotoItemProps {
   item: { id: string; uri: string };

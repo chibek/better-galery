@@ -1,7 +1,7 @@
 import { ButtonOpacity } from "@components/Pressto";
-import { memo } from "react";
-import { View, Text } from "react-native";
 import { cn } from "@utils/cn";
+import { memo } from "react";
+import { Text,View } from "react-native";
 
 export const BackgroundTypeSelector = memo(
   ({ activeType, onTypeChange }: any) => {

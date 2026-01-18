@@ -1,9 +1,9 @@
 import { View } from "react-native";
 import Animated, {
-  useAnimatedStyle,
-  interpolate,
   Extrapolation,
+  interpolate,
   SharedValue,
+  useAnimatedStyle,
 } from "react-native-reanimated";
 
 interface BottomNavProps {

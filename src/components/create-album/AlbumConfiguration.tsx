@@ -1,12 +1,12 @@
-import React, { useCallback, useState } from "react";
-import { View, Text, ScrollView, Switch } from "react-native";
-import { useCreateAlbum } from "@hooks/useAlbums";
-import { ButtonOpacity } from "@components/Pressto";
-import { Ionicons } from "@expo/vector-icons";
 import { AlbumPreview } from "./AlbumPreview";
 import { BackgroundTypeSelector } from "./BackgroundTypeSelector";
 import { CustomColorPicker } from "./CustomColorPicker";
 import { ImageCoverPicker } from "./ImageCoverPicker";
+import { ButtonOpacity } from "@components/Pressto";
+import { Ionicons } from "@expo/vector-icons";
+import { useCreateAlbum } from "@hooks/useAlbums";
+import React, { useCallback, useState } from "react";
+import { ScrollView, Switch,Text, View } from "react-native";
 
 export function AlbumConfiguration({
   selectedAssets,

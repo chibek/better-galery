@@ -1,15 +1,15 @@
-import { View, Text } from "react-native";
+import { ButtonScale } from "@components/Pressto";
+import { Ionicons } from "@expo/vector-icons";
+import { Text,View } from "react-native";
 import Animated, {
   FadeInDown,
   FadeInRight,
+  SharedValue,
   useAnimatedStyle,
   withSpring,
   withTiming,
-  SharedValue,
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ButtonScale } from "@components/Pressto";
 
 // --- PAGE 1: WELCOME ---
 export function WelcomePage({

@@ -1,17 +1,17 @@
 import "../styles/global.css";
 
+import { Stack } from "@components/TransitionStack";
+import { db, expoDb } from "@db/client";
+import migrations from "@drizzle/migrations";
 import { BebasNeue_400Regular, useFonts } from "@expo-google-fonts/bebas-neue";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
-import { Stack } from "expo-router";
+import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import * as SplashScreen from "expo-splash-screen";
 import { PressablesConfig } from "pressto";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import migrations from "@drizzle/migrations";
-import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
-import { db, expoDb } from "@db/client";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -76,7 +76,9 @@ export default function RootLayout() {
               />
               <Stack.Screen
                 name="create-album/index"
-                options={{ presentation: "modal" }}
+                options={{
+                  presentation: "modal",
+                }}
               />
             </Stack>
           </SafeAreaProvider>

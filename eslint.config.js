@@ -1,13 +1,11 @@
 const { defineConfig } = require("eslint/config");
 const expoConfig = require("eslint-config-expo/flat");
 const simpleImportSort = require("eslint-plugin-simple-import-sort");
-const importPlugin = require("eslint-plugin-import");
 
 module.exports = defineConfig([
   expoConfig,
   {
     plugins: {
-      import: importPlugin,
       "simple-import-sort": simpleImportSort,
     },
 
@@ -30,7 +28,6 @@ module.exports = defineConfig([
         },
       ],
       "simple-import-sort/exports": "error",
-      "import/no-unresolved": "error",
     },
   },
 

@@ -1,16 +1,15 @@
-import React, { useImperativeHandle, type ForwardedRef } from "react";
-import { useAnimatedReaction } from "react-native-reanimated";
-import { Dimensions } from "react-native";
-import type {
-  SwiperCardRefType,
-  SwiperOptions,
-  SwiperCardOptions,
-} from "./types";
-import { scheduleOnRN } from "react-native-worklets";
-
 import useSwipeControls from "./hooks/useSwipeControls";
 import SwiperCard from "./swipe-card";
+import type {
+  SwiperCardOptions,
+  SwiperCardRefType,
+  SwiperOptions,
+} from "./types";
+import React, { type ForwardedRef,useImperativeHandle } from "react";
+import { Dimensions } from "react-native";
+import { useAnimatedReaction } from "react-native-reanimated";
 import type { SpringConfig } from "react-native-reanimated/lib/typescript/animation/spring";
+import { scheduleOnRN } from "react-native-worklets";
 
 const { width: windowWidth, height: windowHeight } = Dimensions.get("screen");
 

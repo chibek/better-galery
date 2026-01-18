@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Text, View } from "react-native";
-import ColorPicker, { Panel1, HueSlider } from "reanimated-color-picker";
+import ColorPicker, { HueSlider,Panel1 } from "reanimated-color-picker";
 
 export const CustomColorPicker = memo(
   ({ selectedColor, onColorChange }: any) => {
