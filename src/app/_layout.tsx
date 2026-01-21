@@ -27,20 +27,21 @@ const queryClient = new QueryClient({
 
 export const DATABASE_NAME = "gallery.db";
 
+function DrizzleStudio() {
+  useDrizzleStudio(expoDb);
+  return null;
+}
+
 export default function RootLayout() {
   const { success: migrationsSuccess, error: migrationsError } = useMigrations(
     db,
-    migrations
+    migrations,
   );
   const [fontsLoaded, fontError] = useFonts({
     BebasNeue: BebasNeue_400Regular,
   });
 
   const isReady = fontsLoaded && migrationsSuccess;
-
-  if (__DEV__) {
-    useDrizzleStudio(expoDb);
-  }
 
   useEffect(() => {
     if (migrationsError) {
@@ -61,9 +62,10 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {__DEV__ && <DrizzleStudio />}
       <PressablesConfig
         animationType="spring"
-        animationConfig={{ damping: 30, stiffness: 200 }}
+        animationConfig={{ damping: 20, stiffness: 400 }}
         config={{ minScale: 0.9, activeOpacity: 0.6 }}
       >
         <GestureHandlerRootView style={{ flex: 1 }}>

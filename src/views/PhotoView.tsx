@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Dimensions,StyleSheet, View } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { Dimensions, StyleSheet, View } from "react-native";
 import Transition from "react-native-screen-transitions";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -11,8 +11,6 @@ export default function PhotoScreen() {
     uri: string;
     sharedBoundTag: string;
   }>();
-  const router = useRouter();
-
   const sharedBoundTag = params.sharedBoundTag || "photo-default";
 
   return (

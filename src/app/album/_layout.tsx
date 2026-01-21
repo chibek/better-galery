@@ -1,8 +1,15 @@
 import { Stack } from "@components/TransitionStack";
 import { useGlobalSearchParams } from "expo-router";
-import { Platform, StyleSheet } from "react-native";
-import { Easing, interpolate } from "react-native-reanimated";
-import Transition from "react-native-screen-transitions";
+import { interpolate } from "react-native-reanimated";
+
+const FAST_SPRING_SPEC = {
+  stiffness: 2000,
+  damping: 160,
+  mass: 0.8,
+  overshootClamping: true,
+  restDisplacementThreshold: 0.5,
+  restSpeedThreshold: 0.5,
+};
 
 export default function AlbumStackLayout() {
   const { sharedBoundTag } = useGlobalSearchParams<{
@@ -37,7 +44,7 @@ export default function AlbumStackLayout() {
                 : (next?.gesture.normalizedX ?? 0),
               [-1, 1],
               [-screen.width * 0.5, screen.width * 0.5],
-              "clamp"
+              "clamp",
             );
 
             const y = interpolate(
@@ -46,7 +53,7 @@ export default function AlbumStackLayout() {
                 : (next?.gesture.normalizedY ?? 0),
               [-1, 1],
               [-screen.height * 0.5, screen.height * 0.5],
-              "clamp"
+              "clamp",
             );
 
             if (focused) {
@@ -88,28 +95,11 @@ export default function AlbumStackLayout() {
             };
           },
           transitionSpec: {
-            open: Transition.Specs.DefaultSpec,
-            close: Transition.Specs.DefaultSpec,
+            open: FAST_SPRING_SPEC,
+            close: FAST_SPRING_SPEC,
           },
         }}
       />
     </Stack>
   );
 }
-
-const styles = StyleSheet.create({
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginRight: Platform.OS === "ios" ? 8 : 16,
-  },
-  actionButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

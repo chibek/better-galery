@@ -1,6 +1,6 @@
 import { ImageBackground } from "@components/ImageBackground";
 import { memo } from "react";
-import { Text,View } from "react-native";
+import { Text, View } from "react-native";
 
 export const AlbumPreview = memo(
   ({
@@ -45,5 +45,7 @@ export const AlbumPreview = memo(
         </View>
       )}
     </View>
-  )
+  ),
 );
+
+AlbumPreview.displayName = "AlbumPreview";
