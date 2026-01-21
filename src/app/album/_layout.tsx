@@ -3,12 +3,12 @@ import { useGlobalSearchParams } from "expo-router";
 import { interpolate } from "react-native-reanimated";
 
 const FAST_SPRING_SPEC = {
-  stiffness: 2000,
-  damping: 160,
-  mass: 0.8,
+  stiffness: 3000,
+  damping: 100,
+  mass: 0.5,
   overshootClamping: true,
-  restDisplacementThreshold: 0.5,
-  restSpeedThreshold: 0.5,
+  restDisplacementThreshold: 20,
+  restSpeedThreshold: 20,
 };
 
 export default function AlbumStackLayout() {

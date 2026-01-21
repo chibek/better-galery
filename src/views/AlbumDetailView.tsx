@@ -29,20 +29,16 @@ interface GridItemProps {
   item: MediaLibrary.Asset;
   isSelected: boolean;
   selectMode: boolean;
-  onPressIn: () => void;
   onPress: () => void;
   onLongPress: () => void;
-  delayLongPress?: number;
 }
 
 function GridItem({
   item,
   isSelected,
   selectMode,
-  onPressIn,
   onPress,
   onLongPress,
-  delayLongPress,
 }: GridItemProps) {
   const sharedBoundTag = `photo-${item.id}`;
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -53,24 +49,23 @@ function GridItem({
       useNativeDriver: true,
       damping: 20,
       stiffness: 300,
+      restDisplacementThreshold: 0.02,
+      restSpeedThreshold: 0.02,
     }).start();
   }, [isSelected, scaleAnim]);
 
   return (
-    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-      <Transition.Pressable
-        sharedBoundTag={sharedBoundTag}
-        style={styles.gridItem}
-        onPressIn={onPressIn}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        delayLongPress={delayLongPress}
-      >
+    <ButtonOpacity
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={styles.gridItem}
+    >
+      <Transition.View sharedBoundTag={sharedBoundTag}>
         <Image
           source={{ uri: item.uri }}
           style={styles.image}
           contentFit="cover"
-          transition={200}
+          transition={100}
         />
         {selectMode ? (
           <>
@@ -90,8 +85,8 @@ function GridItem({
             </View>
           </>
         ) : null}
-      </Transition.Pressable>
-    </Animated.View>
+      </Transition.View>
+    </ButtonOpacity>
   );
 }
 
@@ -110,6 +105,8 @@ export default function AlbumDetailView() {
   const router = useRouter();
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [scrollEnabled, setScrollEnabled] = useState(true);
+  const isSelectionDragActiveRef = useRef(false);
   const scrollOffsetRef = useRef(0);
   const lastDragSelectedRef = useRef<string | null>(null);
   const draggingSelectionRef = useRef(false);
@@ -181,9 +178,6 @@ export default function AlbumDetailView() {
           item={item}
           isSelected={isSelected}
           selectMode={selectMode}
-          onPressIn={() => {
-            // No longer using pressStartRef
-          }}
           onPress={() => {
             // Check if user was dragging to select
             if (draggingSelectionRef.current) {
@@ -207,10 +201,12 @@ export default function AlbumDetailView() {
               } as any,
             });
           }}
-          delayLongPress={300}
           onLongPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             if (!selectMode) setSelectMode(true);
             addSelection(item.id);
+            isSelectionDragActiveRef.current = true;
+            setScrollEnabled(false);
           }}
         />
       );
@@ -302,18 +298,18 @@ export default function AlbumDetailView() {
           scrollOffsetRef.current = event.nativeEvent.contentOffset.y;
         }}
         scrollEventThrottle={16}
-        scrollEnabled={!selectMode}
+        scrollEnabled={scrollEnabled}
         onTouchStart={(event) => {
+          draggingSelectionRef.current = false;
           if (!selectMode) return;
           lastDragSelectedRef.current = null;
-          draggingSelectionRef.current = false;
           touchStartPosRef.current = {
             x: event.nativeEvent.pageX,
             y: event.nativeEvent.pageY,
           };
         }}
         onTouchMove={(event) => {
-          if (!selectMode) return;
+          if (!selectMode || !isSelectionDragActiveRef.current) return;
 
           // Increase threshold to 15 pixels to prevent micro-movements from canceling taps
           if (touchStartPosRef.current) {
@@ -328,12 +324,21 @@ export default function AlbumDetailView() {
           handleTouchAtPoint(event.nativeEvent.pageX, event.nativeEvent.pageY);
         }}
         onTouchEnd={() => {
+          isSelectionDragActiveRef.current = false;
+          setScrollEnabled(true);
           if (!selectMode) return;
           lastDragSelectedRef.current = null;
           touchStartPosRef.current = null;
           setTimeout(() => {
             draggingSelectionRef.current = false;
           }, 60);
+        }}
+        onTouchCancel={() => {
+          isSelectionDragActiveRef.current = false;
+          setScrollEnabled(true);
+          lastDragSelectedRef.current = null;
+          touchStartPosRef.current = null;
+          draggingSelectionRef.current = false;
         }}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {

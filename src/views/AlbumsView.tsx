@@ -1,5 +1,5 @@
 import { LegendList } from "@components/LegendList";
-import { ButtonScale } from "@components/Pressto";
+import { ButtonOpacity } from "@components/Pressto";
 import { useAlbums } from "@hooks/useAlbums";
 import { useMediaPermissions } from "@hooks/useMediaPermissions";
 import { getAlbumColor } from "@utils/album-styles";
@@ -30,7 +30,7 @@ export default function AlbumsView() {
           }}
           asChild
         >
-          <ButtonScale>
+          <ButtonOpacity>
             <View className="p-4 h-full">
               <View className="flex-row items-start">
                 <Text
@@ -49,7 +49,7 @@ export default function AlbumsView() {
                 May 2023 - 14 photos
               </Text>
             </View>
-          </ButtonScale>
+          </ButtonOpacity>
         </Link>
       </View>
     );
@@ -86,6 +86,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: -12,
     borderRadius: 12,
+    borderWidth: 4,
+    borderColor: "white",
   },
   lightBg: {
     backgroundColor: "#fecaca",

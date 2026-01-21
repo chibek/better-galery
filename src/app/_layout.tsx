@@ -65,7 +65,10 @@ export default function RootLayout() {
       {__DEV__ && <DrizzleStudio />}
       <PressablesConfig
         animationType="spring"
-        animationConfig={{ damping: 20, stiffness: 400 }}
+        animationConfig={{
+          damping: 20,
+          stiffness: 600,
+        }}
         config={{ minScale: 0.9, activeOpacity: 0.6 }}
       >
         <GestureHandlerRootView style={{ flex: 1 }}>
