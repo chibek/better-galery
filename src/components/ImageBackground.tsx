@@ -1,7 +1,7 @@
 import { ImageBackground as ImageBackgroundNative } from "expo-image";
-import { cssInterop } from "react-native-css-interop";
+import { styled } from "nativewind";
 
-export const ImageBackground = cssInterop(ImageBackgroundNative, {
+export const ImageBackground = styled(ImageBackgroundNative, {
   className: {
     target: "style",
   },

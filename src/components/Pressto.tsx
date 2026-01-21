@@ -1,23 +1,23 @@
+import { styled } from "nativewind";
 import {
   PressableOpacity,
   PressableScale,
   PressableWithoutFeedback,
 } from "pressto";
-import { cssInterop } from "react-native-css-interop";
 
-export const ButtonOpacity = cssInterop(PressableOpacity, {
+export const ButtonOpacity = styled(PressableOpacity, {
   className: {
     target: "style",
   },
 });
 
-export const ButtonScale = cssInterop(PressableScale, {
+export const ButtonScale = styled(PressableScale, {
   className: {
     target: "style",
   },
 });
 
-export const ButtonWithoutFeedback = cssInterop(PressableWithoutFeedback, {
+export const ButtonWithoutFeedback = styled(PressableWithoutFeedback, {
   className: {
     target: "style",
   },
