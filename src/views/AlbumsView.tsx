@@ -9,11 +9,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 export default function AlbumsView() {
   const { status, isLimited } = useMediaPermissions();
-  const {
-    data: albums,
-    isLoading,
-    error,
-  } = useAlbums(!!status?.granted, isLimited);
+  const { data: albums, isLoading } = useAlbums(!!status?.granted, isLimited);
 
   const renderItem = ({ item }: { item: MediaLibrary.Album }) => {
     const bg = getAlbumColor(item);
@@ -64,7 +60,7 @@ export default function AlbumsView() {
   }
 
   return (
-    <View className="flex-1 bg-white dark:bg-black p-4">
+    <View className="flex-1 bg-white dark:bg-black ">
       <LegendList
         data={albums || []}
         renderItem={renderItem}

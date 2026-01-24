@@ -3,22 +3,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAlbumAssets } from "@hooks/useAlbums";
 import { useMediaPermissions } from "@hooks/useMediaPermissions";
 import { LegendList } from "@legendapp/list";
-import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import * as MediaLibrary from "expo-media-library";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
   Dimensions,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Transition from "react-native-screen-transitions";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const NUM_COLUMNS = 3;
@@ -27,6 +23,7 @@ const ITEM_SIZE = (SCREEN_WIDTH - SPACING * (NUM_COLUMNS + 1)) / NUM_COLUMNS;
 
 interface GridItemProps {
   item: MediaLibrary.Asset;
+  albumId: string;
   isSelected: boolean;
   selectMode: boolean;
   onPress: () => void;
@@ -35,12 +32,12 @@ interface GridItemProps {
 
 function GridItem({
   item,
+  albumId,
   isSelected,
   selectMode,
   onPress,
   onLongPress,
 }: GridItemProps) {
-  const sharedBoundTag = `photo-${item.id}`;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -54,43 +51,73 @@ function GridItem({
     }).start();
   }, [isSelected, scaleAnim]);
 
-  return (
+  const content = (
     <ButtonOpacity
       onPress={onPress}
       onLongPress={onLongPress}
       style={styles.gridItem}
     >
-      <Transition.View sharedBoundTag={sharedBoundTag}>
+      <Link.AppleZoom>
         <Image
           source={{ uri: item.uri }}
           style={styles.image}
           contentFit="cover"
-          transition={100}
         />
-        {selectMode ? (
-          <>
-            <View
-              style={[
-                styles.selectionOverlay,
-                isSelected && styles.selectionOverlayActive,
-              ]}
+      </Link.AppleZoom>
+
+      {selectMode ? (
+        <>
+          <View
+            style={[
+              styles.selectionOverlay,
+              isSelected && styles.selectionOverlayActive,
+            ]}
+          />
+          {isSelected && <View style={styles.selectionBorder} />}
+          <View style={styles.selectionBadge}>
+            <Ionicons
+              name={isSelected ? "checkmark-circle" : "ellipse-outline"}
+              size={24}
+              color={isSelected ? "#0A84FF" : "rgba(255, 255, 255, 0.9)"}
             />
-            {isSelected && <View style={styles.selectionBorder} />}
-            <View style={styles.selectionBadge}>
-              <Ionicons
-                name={isSelected ? "checkmark-circle" : "ellipse-outline"}
-                size={24}
-                color={isSelected ? "#0A84FF" : "rgba(255, 255, 255, 0.9)"}
-              />
-            </View>
-          </>
-        ) : null}
-      </Transition.View>
+          </View>
+        </>
+      ) : null}
     </ButtonOpacity>
+  );
+
+  if (selectMode) {
+    return content;
+  }
+
+  return (
+    <Link
+      href={{
+        pathname: "/album/photo",
+        params: { id: item.id, albumId: albumId, uri: item.uri },
+      }}
+      asChild
+    >
+      {content}
+    </Link>
   );
 }
 
-export default function AlbumDetailView() {
+interface AlbumDetailViewProps {
+  selectMode: boolean;
+  selectedIds: Set<string>;
+  setSelectMode: (value: boolean) => void;
+  setSelectedIds: (value: Set<string>) => void;
+  onExitSelectMode: () => void;
+}
+
+export default function AlbumDetailView({
+  selectMode,
+  selectedIds,
+  setSelectMode,
+  setSelectedIds,
+  onExitSelectMode,
+}: AlbumDetailViewProps) {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { status } = useMediaPermissions();
 
@@ -102,9 +129,6 @@ export default function AlbumDetailView() {
     [data],
   );
 
-  const router = useRouter();
-  const [selectMode, setSelectMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const isSelectionDragActiveRef = useRef(false);
   const scrollOffsetRef = useRef(0);
@@ -114,37 +138,31 @@ export default function AlbumDetailView() {
   const containerLayoutRef = useRef({ x: 0, y: 0 });
   const selectionCount = selectedIds.size;
 
-  const exitSelectMode = useCallback(() => {
-    setSelectMode(false);
-    setSelectedIds(new Set());
-  }, []);
-
-  const toggleSelect = useCallback((assetId: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(assetId)) {
-        next.delete(assetId);
-      } else {
-        next.add(assetId);
-      }
-      return next;
-    });
-  }, []);
-
-  const addSelection = useCallback((assetId: string) => {
-    setSelectedIds((prev) => {
-      if (prev.has(assetId)) return prev;
+  const toggleSelect = useCallback(
+    (assetId: string) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      const next = new Set(prev);
-      next.add(assetId);
-      return next;
-    });
-  }, []);
+      setSelectedIds(
+        new Set(selectedIds).has(assetId)
+          ? new Set([...selectedIds].filter((id) => id !== assetId))
+          : new Set([...selectedIds, assetId]),
+      );
+    },
+    [selectedIds, setSelectedIds],
+  );
+
+  const addSelection = useCallback(
+    (assetId: string) => {
+      if (selectedIds.has(assetId)) return;
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setSelectedIds(new Set([...selectedIds, assetId]));
+    },
+    [selectedIds, setSelectedIds],
+  );
 
   const handleTouchAtPoint = useCallback(
     (pageX: number, pageY: number) => {
       if (!selectMode) return;
+      if (!containerLayoutRef.current) return;
 
       // pageX needs to be adjusted by the list's horizontal position and grid padding
       const listLocalX = pageX - containerLayoutRef.current.x;
@@ -176,6 +194,7 @@ export default function AlbumDetailView() {
       return (
         <GridItem
           item={item}
+          albumId={id}
           isSelected={isSelected}
           selectMode={selectMode}
           onPress={() => {
@@ -190,16 +209,6 @@ export default function AlbumDetailView() {
               toggleSelect(item.id);
               return;
             }
-
-            // Navigate to photo - allow immediate navigation even during animations
-            router.push({
-              pathname: "/album/photo" as any,
-              params: {
-                id: item.id,
-                uri: item.uri,
-                sharedBoundTag: `photo-${item.id}`,
-              } as any,
-            });
           }}
           onLongPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -211,7 +220,7 @@ export default function AlbumDetailView() {
         />
       );
     },
-    [addSelection, router, selectMode, selectedIds, toggleSelect],
+    [addSelection, selectMode, selectedIds, toggleSelect, id, setSelectMode],
   );
 
   const renderFooter = () => {
@@ -225,68 +234,6 @@ export default function AlbumDetailView() {
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
-      <SafeAreaView edges={["top"]}>
-        <BlurView
-          tint="light"
-          intensity={100}
-          style={styles.header}
-          className="bg-white/70 dark:bg-black/70"
-        >
-          <View style={styles.headerLeft}>
-            <ButtonOpacity
-              onPress={() => router.back()}
-              className="bg-black/10 dark:bg-white/10 rounded-full p-2"
-            >
-              <Ionicons name="chevron-back" size={24} color="#000" />
-            </ButtonOpacity>
-          </View>
-          <View style={styles.headerCenter}>
-            {selectMode ? (
-              <Text style={styles.headerTitle}>
-                {selectionCount > 0
-                  ? `${selectionCount} Selected`
-                  : "Select Items"}
-              </Text>
-            ) : null}
-          </View>
-          <View style={styles.headerActions}>
-            {selectMode ? (
-              <ButtonOpacity
-                style={styles.actionButton}
-                onPress={exitSelectMode}
-                className="bg-black/10 dark:bg-white/10 rounded-full"
-              >
-                <Ionicons name="close" size={20} color="#000" />
-              </ButtonOpacity>
-            ) : (
-              <>
-                <ButtonOpacity
-                  style={styles.actionButton}
-                  onPress={() => console.log("Edit pressed")}
-                  className="bg-black/10 dark:bg-white/10 rounded-full"
-                >
-                  <Ionicons name="pencil-outline" size={20} color="#000" />
-                </ButtonOpacity>
-                <ButtonOpacity
-                  style={styles.actionButton}
-                  onPress={() => console.log("Share pressed")}
-                  className="bg-black/10 dark:bg-white/10 rounded-full"
-                >
-                  <Ionicons name="share-outline" size={20} color="#000" />
-                </ButtonOpacity>
-                <ButtonOpacity
-                  style={styles.actionButton}
-                  onPress={() => setSelectMode(true)}
-                  className="bg-black/10 dark:bg-white/10 rounded-full"
-                >
-                  <Ionicons name="checkbox-outline" size={20} color="#000" />
-                </ButtonOpacity>
-              </>
-            )}
-          </View>
-        </BlurView>
-      </SafeAreaView>
-
       <LegendList
         data={assets}
         renderItem={renderItem}
@@ -361,36 +308,6 @@ export default function AlbumDetailView() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  headerLeft: {
-    width: 40,
-    alignItems: "flex-start",
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  actionButton: {
-    width: 36,
-    height: 36,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   contentContainer: {
     padding: SPACING,
   },

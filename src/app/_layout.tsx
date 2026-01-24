@@ -1,12 +1,12 @@
 import "../styles/global.css";
 
-import { Stack } from "@components/TransitionStack";
 import { db, expoDb } from "@db/client";
 import migrations from "@drizzle/migrations";
 import { BebasNeue_400Regular, useFonts } from "@expo-google-fonts/bebas-neue";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { PressablesConfig } from "pressto";
 import { useEffect } from "react";

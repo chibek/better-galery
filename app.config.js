@@ -43,6 +43,13 @@ module.exports = {
         granularPermissions: ["audio", "photo"],
       },
     ],
+    [
+      "expo-build-properties",
+      {
+        buildReactNativeFromSource: true,
+        useHermesV1: true,
+      },
+    ],
     ["expo-sqlite"],
   ],
 };
